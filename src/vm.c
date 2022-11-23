@@ -13,8 +13,8 @@ static InterpretResult run() {
 #define BINARY_OP(op) \
     do { \
       double b = pop(); \
-      double a = pop(); \
-      push(a op b); \
+      double a = peek(); \
+      setCurrent(a op b); \
     } while (false)
 
   for (;;) {
@@ -60,7 +60,7 @@ static InterpretResult run() {
         break;
       }
       case OP_NEGATE: {
-        push(-pop());
+        setCurrent(-peek());
         break;
       }
       case OP_RETURN: {
@@ -93,6 +93,10 @@ InterpretResult interpret(Chunk* chunk) {
   return run();
 }
 
+void setCurrent(Value value) {
+  *(vm.stack.top - 1) = value;
+}
+
 void push(Value value) {
   *vm.stack.top = value;
   size_t count = vm.stack.top - vm.stack.array + 1;
@@ -110,6 +114,10 @@ void push(Value value) {
 Value pop() {
   vm.stack.top--;
   return *vm.stack.top;
+}
+
+Value peek() {
+  return *(vm.stack.top - 1);
 }
 
 void freeVM() {
