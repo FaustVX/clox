@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "debug.h"
 #include "common.h"
+#include "memory.h"
 
 VM vm;
 
@@ -12,14 +13,14 @@ static InterpretResult run() {
 #define BINARY_OP(op) \
     do { \
       double b = pop(); \
-      double a = pop(); \
-      push(a op b); \
+      double a = peek(); \
+      setCurrent(a op b); \
     } while (false)
 
   for (;;) {
 #ifdef DEBUG_TRACE_EXECUTION
     printf("          ");
-    for (Value* slot = vm.stack; slot < vm.stackTop; slot++) {
+    for (Value* slot = vm.stack.array; slot < vm.stack.top; slot++) {
       printf("[ ");
       printValue(*slot);
       printf(" ]");
@@ -59,7 +60,7 @@ static InterpretResult run() {
         break;
       }
       case OP_NEGATE: {
-        push(-pop());
+        setCurrent(-peek());
         break;
       }
       case OP_RETURN: {
@@ -77,10 +78,12 @@ static InterpretResult run() {
 }
 
 static void resetStack() {
-  vm.stackTop = vm.stack;
+  vm.stack.top = vm.stack.array;
 }
 
 void initVM() {
+  vm.stack.capacity = 256;
+  vm.stack.array = GROW_ARRAY(Value, vm.stack.array, 0, vm.stack.capacity);
   resetStack();
 }
 
@@ -90,16 +93,33 @@ InterpretResult interpret(Chunk* chunk) {
   return run();
 }
 
+void setCurrent(Value value) {
+  *(vm.stack.top - 1) = value;
+}
+
 void push(Value value) {
-  *vm.stackTop = value;
-  vm.stackTop++;
+  *vm.stack.top = value;
+  size_t count = vm.stack.top - vm.stack.array + 1;
+  if (count >= vm.stack.capacity)
+  {
+    vm.stack.capacity *= 2;
+    vm.stack.array = GROW_ARRAY(Value, vm.stack.array, count, vm.stack.capacity);
+    vm.stack.top = vm.stack.array + count;
+  }
+  else
+    vm.stack.top++;
+}
+
+Value peek() {
+  return *(vm.stack.top - 1);
 }
 
 Value pop() {
-  vm.stackTop--;
-  return *vm.stackTop;
+  vm.stack.top--;
+  return *vm.stack.top;
 }
 
 void freeVM() {
-  
+  vm.stack.array = GROW_ARRAY(Value, vm.stack.array, vm.stack.capacity, 0);
+  vm.stack.capacity = 0;
 }
