@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "debug.h"
 #include "common.h"
+#include "memory.h"
 
 VM vm;
 
@@ -19,7 +20,7 @@ static InterpretResult run() {
   for (;;) {
 #ifdef DEBUG_TRACE_EXECUTION
     printf("          ");
-    for (Value* slot = vm.stack; slot < vm.stackTop; slot++) {
+    for (Value* slot = vm.stack.array; slot < vm.stack.top; slot++) {
       printf("[ ");
       printValue(*slot);
       printf(" ]");
@@ -77,10 +78,12 @@ static InterpretResult run() {
 }
 
 static void resetStack() {
-  vm.stackTop = vm.stack;
+  vm.stack.top = vm.stack.array;
 }
 
 void initVM() {
+  vm.stack.capacity = 256;
+  vm.stack.array = GROW_ARRAY(Value, vm.stack.array, 0, vm.stack.capacity);
   resetStack();
 }
 
@@ -91,15 +94,25 @@ InterpretResult interpret(Chunk* chunk) {
 }
 
 void push(Value value) {
-  *vm.stackTop = value;
-  vm.stackTop++;
+  *vm.stack.top = value;
+  size_t count = vm.stack.top - vm.stack.array + 1;
+  if (count >= vm.stack.capacity)
+  {
+    int oldCapacity = vm.stack.capacity;
+    vm.stack.capacity *= 2;
+    vm.stack.array = GROW_ARRAY(Value, vm.stack.array, oldCapacity, vm.stack.capacity);
+    vm.stack.top = vm.stack.array + count;
+  }
+  else
+    vm.stack.top++;
 }
 
 Value pop() {
-  vm.stackTop--;
-  return *vm.stackTop;
+  vm.stack.top--;
+  return *vm.stack.top;
 }
 
 void freeVM() {
-  
+  vm.stack.array = GROW_ARRAY(Value, vm.stack.array, vm.stack.capacity, 0);
+  vm.stack.capacity = 0;
 }
