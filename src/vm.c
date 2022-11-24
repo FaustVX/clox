@@ -157,6 +157,7 @@ static InterpretResult run() {
 void initVM() {
   vm.stack.capacity = 256;
   vm.stack.array = GROW_ARRAY(Value, vm.stack.array, 0, vm.stack.capacity);
+  vm.objects = NULL;
   resetStack();
 }
 
@@ -207,4 +208,5 @@ Value pop() {
 void freeVM() {
   vm.stack.array = GROW_ARRAY(Value, vm.stack.array, vm.stack.capacity, 0);
   vm.stack.capacity = 0;
+  freeObjects();
 }

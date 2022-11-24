@@ -14,6 +14,7 @@ typedef struct {
   Chunk* chunk;
   uint8_t* ip;
   Stack stack;
+  Obj* objects;
 } VM;
 
 typedef enum {
@@ -21,6 +22,8 @@ typedef enum {
   INTERPRET_COMPILE_ERROR,
   INTERPRET_RUNTIME_ERROR
 } InterpretResult;
+
+extern VM vm;
 
 void initVM();
 InterpretResult interpret(const char* source);
