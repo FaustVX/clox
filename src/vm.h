@@ -27,7 +27,7 @@ InterpretResult interpret(const char* source);
 void push(Value value);
 void setCurrent(Value value);
 Value pop();
-Value peek();
+Value peek(int distance);
 void freeVM();
 
 #endif
