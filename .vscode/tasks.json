@@ -35,6 +35,18 @@
                 "build"
             ]
         },
+        {
+            "type": "shell",
+            "label": "run current file",
+            "command": "${workspaceFolder}\\out\\lox.exe",
+            "args": ["${relativeFile}"],
+            "options": {
+                "cwd": "${workspaceFolder}",
+            },
+            "dependsOn": [
+                "build"
+            ]
+        },
     ],
     "version": "2.0.0"
 }
