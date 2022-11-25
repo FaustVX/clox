@@ -5,6 +5,7 @@
 #include "object.h"
 #include "value.h"
 #include "vm.h"
+#include "table.h"
 
 #define ALLOCATE_OBJ(type, objectType) \
     (type*)allocateObject(sizeof(type), objectType)
@@ -21,7 +22,17 @@ static ObjString* allocateString(int length) {
   ObjString* string = (ObjString*)allocateObject(sizeof(ObjString) + length + 1, OBJ_STRING);
   string->chars[length] = '\0';
   string->length = length;
+  tableSet(&vm.strings, string, NIL_VAL);
   return string;
+}
+
+static uint32_t hashString(const char* key, int length) {
+  uint32_t hash = 2166136261u;
+  for (int i = 0; i < length; i++) {
+    hash ^= (uint8_t)key[i];
+    hash *= 16777619;
+  }
+  return hash;
 }
 
 ObjString* concatString(ObjString* a, ObjString* b) {
@@ -33,12 +44,23 @@ ObjString* concatStringRaw(char* a, int lenA, char* b, int lenB) {
   ObjString* string = allocateString(length);
   memcpy(string->chars, a, lenA);
   memcpy(string->chars + lenA, b, lenB);
+  string->hash = hashString(string->chars, string->length);
+  ObjString* interned = tableFindString(&vm.strings, string->chars, length, string->hash);
+  if (interned != NULL) {
+    return interned;
+  }
+
   return string;
 }
 
 ObjString* copyString(const char* chars, int length) {
+  uint32_t hash = hashString(chars, length);
+  ObjString* interned = tableFindString(&vm.strings, chars, length, hash);
+  if (interned != NULL)
+    return interned;
   ObjString* string = allocateString(length);
   memcpy(string->chars, chars, length);
+  string->hash = hash;
   return string;
 }
 

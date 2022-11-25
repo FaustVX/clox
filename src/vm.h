@@ -3,6 +3,7 @@
 
 #include "chunk.h"
 #include "value.h"
+#include "table.h"
 
 typedef struct {
   int capacity;
@@ -14,6 +15,7 @@ typedef struct {
   Chunk* chunk;
   uint8_t* ip;
   Stack stack;
+  Table strings;
   Obj* objects;
 } VM;
 
