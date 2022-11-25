@@ -1,1 +1,3 @@
-"string"=="st"+"ri"+"ng"
+print "string"=="st"+"ri"+"ng";
+print 1 + 2;
+print 3 * 4;

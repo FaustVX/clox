@@ -90,6 +90,9 @@ static InterpretResult run() {
       case OP_FALSE:
         push(BOOL_VAL(false));
         break;
+      case OP_POP:
+        pop();
+        break;
       case OP_EQUAL: {
         Value b = pop();
         Value a = peek(0);
@@ -148,9 +151,12 @@ static InterpretResult run() {
         }
         setCurrent(NUMBER_VAL(-AS_NUMBER(peek(0))));
         break;
-      case OP_RETURN: {
+      case OP_PRINT: {
         printValue(pop());
         printf("\n");
+        break;
+      }
+      case OP_RETURN: {
         return INTERPRET_OK;
       }
     }
