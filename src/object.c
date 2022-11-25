@@ -25,10 +25,14 @@ static ObjString* allocateString(int length) {
 }
 
 ObjString* concatString(ObjString* a, ObjString* b) {
-  int length = a->length + b->length;
+  return concatStringRaw(a->chars, a->length, b->chars, b->length);
+}
+
+ObjString* concatStringRaw(char* a, int lenA, char* b, int lenB) {
+  int length = lenA + lenB;
   ObjString* string = allocateString(length);
-  memcpy(string->chars, a->chars, a->length);
-  memcpy(string->chars + a->length, b->chars, b->length);
+  memcpy(string->chars, a, lenA);
+  memcpy(string->chars + lenA, b, lenB);
   return string;
 }
 

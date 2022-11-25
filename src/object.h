@@ -27,6 +27,7 @@ struct ObjString {
   char chars[];
 };
 
+ObjString* concatStringRaw(char* a, int lenA, char* b, int lenB);
 ObjString* concatString(ObjString* a, ObjString* b);
 ObjString* copyString(const char* chars, int length);
 void printObject(Value value);
