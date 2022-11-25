@@ -24,10 +24,11 @@ struct ObjString {
   Obj obj;
   Obj* next;
   int length;
-  char* chars;
+  char chars[];
 };
 
-ObjString* takeString(char* chars, int length);
+ObjString* concatStringRaw(char* a, int lenA, char* b, int lenB);
+ObjString* concatString(ObjString* a, ObjString* b);
 ObjString* copyString(const char* chars, int length);
 void printObject(Value value);
 

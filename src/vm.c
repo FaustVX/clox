@@ -23,13 +23,7 @@ static void concatenate() {
   ObjString* b = AS_STRING(pop());
   ObjString* a = AS_STRING(peek(0));
 
-  int length = a->length + b->length;
-  char* chars = ALLOCATE(char, length + 1);
-  memcpy(chars, a->chars, a->length);
-  memcpy(chars + a->length, b->chars, b->length);
-  chars[length] = '\0';
-
-  ObjString* result = takeString(chars, length);
+  ObjString* result = concatString(a, b);
   setCurrent(OBJ_VAL(result));
 }
 
@@ -115,6 +109,20 @@ static InterpretResult run() {
           double b = AS_NUMBER(pop());
           double a = AS_NUMBER(peek(0));
           setCurrent(NUMBER_VAL(a + b));
+        } else if (IS_NUMBER(peek(0)) && IS_STRING(peek(1))) {
+          double b = AS_NUMBER(pop());
+          ObjString* a = AS_STRING(peek(0));
+          char output[50];
+          int len = snprintf(output, 50, "%g", b);
+          ObjString* string = concatStringRaw(a->chars, a->length, output, len);
+          setCurrent(OBJ_VAL(string));
+        } else if (IS_STRING(peek(0)) && IS_NUMBER(peek(1))) {
+          ObjString* b = AS_STRING(pop());
+          double a = AS_NUMBER(peek(0));
+          char output[50];
+          int len = snprintf(output, 50, "%g", a);
+          ObjString* string = concatStringRaw(output, len, b->chars, b->length);
+          setCurrent(OBJ_VAL(string));
         } else {
           runtimeError( "Operands must be two numbers or two strings.");
           return INTERPRET_RUNTIME_ERROR;
