@@ -24,6 +24,15 @@ static ObjString* allocateString(int length) {
   return string;
 }
 
+static uint32_t hashString(const char* key, int length) {
+  uint32_t hash = 2166136261u;
+  for (int i = 0; i < length; i++) {
+    hash ^= (uint8_t)key[i];
+    hash *= 16777619;
+  }
+  return hash;
+}
+
 ObjString* concatString(ObjString* a, ObjString* b) {
   return concatStringRaw(a->chars, a->length, b->chars, b->length);
 }
@@ -33,12 +42,14 @@ ObjString* concatStringRaw(char* a, int lenA, char* b, int lenB) {
   ObjString* string = allocateString(length);
   memcpy(string->chars, a, lenA);
   memcpy(string->chars + lenA, b, lenB);
+  string->hash = hashString(string->chars, string->length);
   return string;
 }
 
 ObjString* copyString(const char* chars, int length) {
   ObjString* string = allocateString(length);
   memcpy(string->chars, chars, length);
+  string->hash = hashString(string->chars, string->length);
   return string;
 }
 
