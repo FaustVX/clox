@@ -3,7 +3,9 @@ var beverage = "cafe au lait";
 breakfast = breakfast + " with " + beverage;
 
 print breakfast;
+for (var breakfast = 0; breakfast < 5; breakfast = breakfast + 1)
 {
   var breakfast = "breakfast";
   print breakfast;
 }
+print breakfast;
