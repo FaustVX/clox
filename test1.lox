@@ -3,7 +3,10 @@ var beverage = "cafe au lait";
 breakfast = breakfast + " with " + beverage;
 
 print breakfast;
+if (breakfast != nil)
 {
   var breakfast = "breakfast";
   print breakfast;
 }
+else
+  print breakfast;
