@@ -58,12 +58,11 @@ void writeChunk(Chunk* chunk, uint8_t byte, int line) {
 
 void writeConstant(Chunk* chunk, Value value, int line) {
   int constant = addConstant(chunk, value);
-  if (constant < 256) {
+  if (constant <= 0xff) {
     writeChunk(chunk, OP_CONSTANT, line);
     writeChunk(chunk, constant, line);
   }
-  else if (constant < 16777216) {
-    
+  else if (constant <= 0xffffff) {
     writeChunk(chunk, OP_LONG_CONSTANT, line);
     writeChunk(chunk, constant, line);
     writeChunk(chunk, constant >> 8, line);
@@ -75,10 +74,13 @@ void writeConstant(Chunk* chunk, Value value, int line) {
 }
 
 int addConstant(Chunk* chunk, Value value) {
+  for (size_t i = 0; i < chunk->constants.count; i++) {
+    if (valuesEqual(chunk->constants.values[i], value))
+      return i;
+  }
   writeValueArray(&chunk->constants, value);
   return chunk->constants.count - 1;
 }
-
 
 int getLine(LinesArray* array, int offset) {
   int index = 0;
