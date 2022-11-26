@@ -105,8 +105,12 @@ static InterpretResult run() {
         break;
       }
       case OP_DEFINE_GLOBAL: {
-        ObjString* name = AS_STRING(READ_CONSTANT());
-        tableSet(&vm.globals, name, peek(0));
+        ObjString* name = READ_STRING();
+        if (!tableSet(&vm.globals, name, peek(0))) {
+          tableDelete(&vm.globals, name); 
+          runtimeError("variable '%s' already defined.", name->chars);
+          return INTERPRET_RUNTIME_ERROR;
+        }
         pop();
         break;
       }

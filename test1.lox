@@ -3,3 +3,4 @@ var beverage = "cafe au lait";
 breakfast = breakfast + " with " + beverage;
 
 print breakfast;
+var breakfast = "breakfast";
