@@ -30,6 +30,14 @@ void disassembleChunk(Chunk* chunk, const char* name) {
   for (int offset = 0; offset < chunk->count;) {
     offset = disassembleInstruction(chunk, offset);
   }
+
+  printf("\n== %s ==\n", "constants");
+
+  for (size_t i = 0; i < chunk->constants.count; i++) {
+    printf("%04d '", i);
+    printValue(chunk->constants.values[i]);
+    printf("'\n");
+  }
 }
 
 int disassembleInstruction(Chunk* chunk, int offset) {
