@@ -3,10 +3,8 @@ var beverage = "cafe au lait";
 breakfast = breakfast + " with " + beverage;
 
 print breakfast;
-if (breakfast == nil or false)
+while (breakfast == nil or true)
 {
   var breakfast = "breakfast";
   print breakfast;
 }
-else
-  print breakfast;
