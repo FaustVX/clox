@@ -18,10 +18,11 @@ static Obj* allocateObject(size_t size, ObjType type) {
   return object;
 }
 
-static ObjString* allocateString(int length) {
+static ObjString* allocateString(int length, uint32_t hash) {
   ObjString* string = (ObjString*)allocateObject(sizeof(ObjString) + length + 1, OBJ_STRING);
   string->chars[length] = '\0';
   string->length = length;
+  string->hash = hash;
   tableSet(&vm.strings, string, NIL_VAL);
   return string;
 }
@@ -41,14 +42,19 @@ ObjString* concatString(ObjString* a, ObjString* b) {
 
 ObjString* concatStringRaw(char* a, int lenA, char* b, int lenB) {
   int length = lenA + lenB;
-  ObjString* string = allocateString(length);
-  memcpy(string->chars, a, lenA);
-  memcpy(string->chars + lenA, b, lenB);
-  string->hash = hashString(string->chars, string->length);
-  ObjString* interned = tableFindString(&vm.strings, string->chars, length, string->hash);
+  char* chars = ALLOCATE(char, length + 1);
+  memcpy(chars, a, lenA);
+  memcpy(chars + lenA, b, lenB);
+  chars[length] = '\0';
+  uint32_t hash = hashString(chars, length);
+  ObjString* interned = tableFindString(&vm.strings, chars, length, hash);
   if (interned != NULL) {
+    FREE_ARRAY(char, chars, length + 1);
     return interned;
   }
+  ObjString* string = allocateString(length, hash);
+  memcpy(string->chars, chars, length);
+  FREE_ARRAY(char, chars, length + 1);
 
   return string;
 }
@@ -58,9 +64,8 @@ ObjString* copyString(const char* chars, int length) {
   ObjString* interned = tableFindString(&vm.strings, chars, length, hash);
   if (interned != NULL)
     return interned;
-  ObjString* string = allocateString(length);
+  ObjString* string = allocateString(length, hash);
   memcpy(string->chars, chars, length);
-  string->hash = hash;
   return string;
 }
 

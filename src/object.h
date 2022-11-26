@@ -22,7 +22,6 @@ struct Obj {
 
 struct ObjString {
   Obj obj;
-  Obj* next;
   uint32_t hash;
   int length;
   char chars[];
