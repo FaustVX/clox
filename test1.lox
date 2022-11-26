@@ -1,4 +1,5 @@
-print "string"=="st"+"ri"+"ng";
+var breakfast = "beignets";
 var beverage = "cafe au lait";
-var breakfast = "beignets with " + beverage;
+breakfast = breakfast + " with " + beverage;
+
 print breakfast;
