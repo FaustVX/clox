@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
+#include <time.h>
 
 #include "vm.h"
 #include "debug.h"
@@ -10,6 +11,10 @@
 #include "object.h"
 
 VM vm;
+
+static Value clockNative(int argCount, Value* args) {
+  return NUMBER_VAL((double)clock() / CLOCKS_PER_SEC);
+}
 
 static void resetStack() {
   vm.stack.top = vm.stack.array;
@@ -49,6 +54,14 @@ static void runtimeError(const char* format, ...) {
   resetStack();
 }
 
+static void defineNative(const char* name, NativeFn function) {
+  push(OBJ_VAL(copyString(name, (int)strlen(name))));
+  push(OBJ_VAL(newNative(function)));
+  tableSet(&vm.globals, AS_STRING(vm.stack.array[0]), vm.stack.array[1]);
+  pop();
+  pop();
+}
+
 static bool call(ObjFunction* function, int argCount) {
   if (argCount != function->arity) {
     runtimeError("Expected %d arguments but got %d.", function->arity, argCount);
@@ -69,6 +82,13 @@ static bool callValue(Value callee, int argCount) {
     switch (OBJ_TYPE(callee)) {
       case OBJ_FUNCTION:
         return call(AS_FUNCTION(callee), argCount);
+      case OBJ_NATIVE: {
+        NativeFn native = AS_NATIVE(callee);
+        Value result = native(argCount, vm.stack.top - argCount);
+        vm.stack.top -= argCount + 1;
+        push(result);
+        return true;
+      }
       default:
         break; // Non-callable object type.
     }
@@ -290,6 +310,7 @@ void initVM() {
   initTable(&vm.strings);
   initTable(&vm.globals);
   resetStack();
+  defineNative("clock", clockNative);
 }
 
 InterpretResult interpret(const char* source) {
