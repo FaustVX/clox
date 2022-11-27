@@ -1,5 +1,5 @@
 fun areWeHavingItYet() {
-  print "Yes we are!";
+  return "Yes we are!";
 }
 
-areWeHavingItYet();
+print areWeHavingItYet();
