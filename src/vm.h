@@ -4,6 +4,15 @@
 #include "chunk.h"
 #include "value.h"
 #include "table.h"
+#include "object.h"
+
+#define FRAMES_MAX 64
+
+typedef struct {
+  ObjFunction* function;
+  uint8_t* ip;
+  Value* slots;
+} CallFrame;
 
 typedef struct {
   int capacity;
@@ -12,6 +21,8 @@ typedef struct {
 } Stack;
 
 typedef struct {
+  CallFrame frames[FRAMES_MAX];
+  int frameCount;
   Chunk* chunk;
   uint8_t* ip;
   Stack stack;

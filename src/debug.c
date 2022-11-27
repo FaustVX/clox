@@ -51,6 +51,8 @@ void disassembleChunk(Chunk* chunk, const char* name) {
     printValue(chunk->constants.values[i]);
     printf("'\n");
   }
+
+  printf("\n");
 }
 
 int disassembleInstruction(Chunk* chunk, int offset) {
@@ -112,6 +114,8 @@ int disassembleInstruction(Chunk* chunk, int offset) {
       return jumpInstruction("OP_JUMP_IF_FALSE", 1, chunk, offset);
     case OP_LOOP:
       return jumpInstruction("OP_LOOP", -1, chunk, offset);
+    case OP_CALL:
+      return byteInstruction("OP_CALL", chunk, offset);
     case OP_RETURN:
       return simpleInstruction("OP_RETURN", offset);
     default:
