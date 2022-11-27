@@ -12,10 +12,6 @@
 
 VM vm;
 
-static Value clockNative(int argCount, Value* args) {
-  return NUMBER_VAL((double)clock() / CLOCKS_PER_SEC);
-}
-
 static void resetStack() {
   vm.stack.top = vm.stack.array;
   vm.frameCount = 0;
@@ -52,6 +48,12 @@ static void runtimeError(const char* format, ...) {
     }
   }
   resetStack();
+}
+
+static Value clockNative(int argCount, Value* args) {
+  if (argCount != 0)
+    runtimeError("Expected 0 arguments but found %i;", argCount);
+  return NUMBER_VAL((double)clock() / CLOCKS_PER_SEC);
 }
 
 static void defineNative(const char* name, NativeFn function) {
