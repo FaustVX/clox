@@ -21,6 +21,12 @@ static void freeObject(Obj* object) {
       reallocate(object, sizeof(ObjString) + string->length + 1, 0);
       break;
     }
+    case OBJ_FUNCTION: {
+      ObjFunction* function = (ObjFunction*)object;
+      freeChunk(&function->chunk);
+      FREE(ObjFunction, object);
+      break;
+    }
   }
 }
 
